@@ -1,6 +1,6 @@
 use std::str::FromStr;
 use reqwest::header::{HeaderMap, HeaderName};
-use super::super::Browser;
+use super::super::retcher::retcher::Browser;
 
 #[derive(Default)]
 struct Header {
@@ -10,7 +10,7 @@ struct Header {
     is_http1: Option<bool>
 }
 
-pub fn generate_headers(host: &String, browser: Browser, https: bool) -> HeaderMap {
+pub fn generate_headers(host: &String, browser: &Browser, https: bool) -> HeaderMap {
     let firefox_headers: Vec<Header> = vec![
         Header { key: "Host".into(), value: host.as_str().into(), is_http1: Some(true), ..Header::default() },
         Header { key: "User-Agent".into(), value: "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0".into(), ..Header::default() }, 
