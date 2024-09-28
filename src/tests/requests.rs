@@ -1,7 +1,7 @@
 use std::iter::zip;
 
 use crate::retcher::retcher::{Browser, EngineOptions, Retcher};
-use super::server::{get_server, RequestHeaders};
+use super::server::{get_server, request_headers::RequestHeaders};
 
 #[tokio::test]
 async fn requests_pass() {
