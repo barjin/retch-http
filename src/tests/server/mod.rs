@@ -3,7 +3,7 @@ use rocket::{Error, Ignite, Rocket};
 use tokio::task::JoinHandle;
 
 pub mod request_headers;
-mod compression;
+pub mod compression;
 
 use request_headers::headers;
 use compression::compression_route;
