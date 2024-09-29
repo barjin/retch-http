@@ -23,7 +23,7 @@ pub async fn get_server() -> JoinHandle<Result<Rocket<Ignite>, Error>> {
         ]);
 
     let handle = tokio::spawn(server.launch());
-    tokio::time::sleep(Duration::from_millis(500000000)).await;
+    tokio::time::sleep(Duration::from_millis(50)).await;
     handle
 }
 

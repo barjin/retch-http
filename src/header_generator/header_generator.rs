@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 use reqwest::header::{HeaderMap, HeaderName};
 use super::super::retcher::retcher::Browser;
 
@@ -10,7 +10,16 @@ struct Header {
     is_http1: Option<bool>
 }
 
-pub fn generate_headers(host: &String, browser: &Browser, https: bool) -> HeaderMap {
+pub struct HeaderGeneratorOptions {
+    pub host: String,
+    pub browser: Browser,
+    pub https: bool,
+    pub custom_headers: Option<HashMap<String, String>>,
+}
+
+pub fn generate_headers(options: HeaderGeneratorOptions) -> HeaderMap {
+    let HeaderGeneratorOptions { host, browser, https, custom_headers } = options;
+
     let firefox_headers: Vec<Header> = vec![
         Header { key: "Host".into(), value: host.as_str().into(), is_http1: Some(true), ..Header::default() },
         Header { key: "User-Agent".into(), value: "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0".into(), ..Header::default() }, 
@@ -54,6 +63,8 @@ pub fn generate_headers(host: &String, browser: &Browser, https: bool) -> Header
         _ => firefox_headers, // Default to Firefox
     };
 
+    let mut custom_headers: HashMap<String, String> = custom_headers.unwrap_or(HashMap::new());
+
     for Header { key, value, is_https, is_http1 } in source_headers.iter() {
         if is_https.is_some() && !https {
             continue;
@@ -64,6 +75,19 @@ pub fn generate_headers(host: &String, browser: &Browser, https: bool) -> Header
             continue;
         }
 
+        let header_value = match custom_headers.get(key) {
+            Some(value) => value,
+            None => value,
+        };
+
+        headers.insert(HeaderName::from_str(key).unwrap(), header_value.parse().unwrap());
+    }
+
+    for key in headers.iter() {
+        custom_headers.remove(key.0.as_str());
+    }
+
+    for (key, value) in custom_headers.iter() {
         headers.insert(HeaderName::from_str(key).unwrap(), value.parse().unwrap());
     }
 

@@ -1,12 +1,14 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
+use crate::header_generator::header_generator::HeaderGeneratorOptions;
+
 use super::super::header_generator::header_generator::generate_headers;
 
 use reqwest::header::HeaderName;
 use url::Url;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Browser {
   Firefox,
   Chrome,
@@ -81,6 +83,7 @@ impl Retcher {
   /// * `url` - A `String` that holds the URL to make a request to.
   /// * `options` - An optional `FetchOptions` struct that holds additional options for the request.
   pub async fn retch(&self, url: String, options: Option<FetchOptions>) -> Result<FetchResponse, FetchError> {
+    // TODO!!! Implement other HTTP methods
     self.get(url, options).await
   }
 
@@ -108,7 +111,12 @@ impl Retcher {
       return Err(protocol_error.unwrap());
     }
 
-    let mut headers = generate_headers(&host.to_string(), &self.browser, protocol == "https");
+    let mut headers = generate_headers(HeaderGeneratorOptions {
+      host: host.to_string(), 
+      browser: self.browser.clone(), 
+      https: protocol == "https",
+      custom_headers: Some(custom_headers.clone()),
+    });
 
     for (key, value) in custom_headers.iter() {
       headers.insert(HeaderName::from_str(key).unwrap(), value.parse().unwrap());
