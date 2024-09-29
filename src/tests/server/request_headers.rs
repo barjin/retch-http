@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use rocket::request::{FromRequest, Outcome};
 
 use rocket::Request;
+use serde_json::json;
 
 #[derive(Serialize, Deserialize)]
 pub struct RequestHeaders(pub Vec<(String, String)>);
@@ -19,4 +20,9 @@ impl<'r> FromRequest<'r> for RequestHeaders {
 
         Outcome::Success(headers)
     }
+}
+
+#[get("/headers")]
+pub fn headers(headers: RequestHeaders) -> String {
+    json!(headers.0).to_string()
 }
