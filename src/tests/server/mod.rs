@@ -1,30 +1,29 @@
 use std::time::Duration;
-use serde_json::json;
-
 use rocket::{Error, Ignite, Rocket};
 use tokio::task::JoinHandle;
 
 pub mod request_headers;
+mod compression;
 
-use request_headers::RequestHeaders;
+use request_headers::headers;
+use compression::compression_route;
 
 #[get("/")]
 fn hello() -> String {
     "Hello, world!".into()
 }
 
-#[get("/headers")]
-fn headers(headers: RequestHeaders) -> String {
-    json!(headers.0).to_string()
-}
-
 // [TODO!!!] - Server is run each time a test is run, but it should be run only once for all tests
 pub async fn get_server() -> JoinHandle<Result<Rocket<Ignite>, Error>> {
     let server = rocket::build()
-        .mount("/", routes![hello, headers]);
+        .mount("/", routes![
+            hello, 
+            headers, 
+            compression_route
+        ]);
 
     let handle = tokio::spawn(server.launch());
-    tokio::time::sleep(Duration::from_millis(20)).await;
+    tokio::time::sleep(Duration::from_millis(500000000)).await;
     handle
 }
 
